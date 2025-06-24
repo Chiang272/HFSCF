@@ -54,7 +54,7 @@ print("What type?")
 print(type(mol))
 
 HF.kernel(mol)
-print("完成")
+print("done")
 
 # Run RHF computation
 mf = pyscf.scf.RHF(mol) #.x2c()

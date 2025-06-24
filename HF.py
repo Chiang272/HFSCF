@@ -106,7 +106,8 @@ def kernel(mol):
         #print(count)
         #print("delta E =",E_elec-E_elec_old)
         #print("delta D =",np.sqrt(np.sum(delta_D2)))
-        print(str(count)+" ||||  %14.6f  ||  %14.6f"%( (E_elec-E_elec_old),np.sqrt(np.sum(delta_D2))))
+        #print(str(count)+" ||||  %14.6f  ||  %14.6f"%( (E_elec-E_elec_old),np.sqrt(np.sum(delta_D2))))
+        print(str(count)+"|||"+str(E_elec-E_elec_old)+"||" + str(np.sqrt(np.sum(delta_D2))))
         if (np.abs(E_elec-E_elec_old) < 1e-12 and np.sqrt(np.sum(delta_D2)) < 1):
             print("SCF converage")
             break
@@ -137,7 +138,7 @@ def kernel(mol):
 
     E_total = E_elec + Enn
 
-    print(E_total)
+    print("Total Energy = ",E_total)
 
 
 
