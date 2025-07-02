@@ -36,8 +36,9 @@ np.set_printoptions(linewidth=150, edgeitems=10, suppress=True)
 mol = pyscf.gto.Mole()
 mol.verbose = 4
 mol.atom =[ 
-[ 'N',  (0, 0, 0)],
-[ 'N',  ( 1.1, 0, 0)],  #0.774292095
+[ 'H',  (0, 0, 0)],
+[ 'H',  ( 1.1, 0, 0)],
+[ 'He',  ( 2.2, 0, 0)]  #0.774292095
 ]
 #mol.basis = bse.get_basis('ano-rcc',uncontract_general=True, uncontract_segmented=True, uncontract_spdf=True,elements=['Hg','H'],fmt='nwchem',header=False)
 mol.basis = 'STO-3g'  #'6-31g**' #'def2tzvp' #'cc-pvdz' #'STO-3G' # 'def2tzvp'

@@ -1,0 +1,179 @@
+hellow
+#INFO: **** input file is /home/chiang.272/HFSCF/test/test.py ****
+import unittest
+import numpy as np
+import math
+import time
+
+import pyscf.gto
+import pyscf.scf
+import pyscf.mcscf
+import pyscf.fci
+import pyscf.mp
+
+#import prism_beta.interface as interface
+#import prism_beta.qd_nevpt as qd_nevpt
+import basis_set_exchange as bse
+#import prism_beta.integrals as integrals
+
+import HFSCF.HF as HF
+
+import sys
+from scipy import constants
+from pyscf.tools import molden
+from pyscf.mcscf import dmet_cas
+import csv
+
+print("hellow")
+
+np.set_printoptions(linewidth=150, edgeitems=10, suppress=True)
+
+
+# SCF cycle:
+
+#theta = np.pi/3
+#x = 1.178 * np.cos(theta)
+#y = 1.178 * np.sin(theta)
+
+mol = pyscf.gto.Mole()
+mol.verbose = 4
+mol.atom =[ 
+[ 'H',  (0, 0, 0)],
+[ 'H',  ( 1.1, 0, 0)],
+[ 'He',  ( 2.2, 0, 0)]  #0.774292095
+]
+#mol.basis = bse.get_basis('ano-rcc',uncontract_general=True, uncontract_segmented=True, uncontract_spdf=True,elements=['Hg','H'],fmt='nwchem',header=False)
+mol.basis = 'STO-3g'  #'6-31g**' #'def2tzvp' #'cc-pvdz' #'STO-3G' # 'def2tzvp'
+
+
+mol.symmetry = False
+mol.spin = 0
+#mol.unit = 'B' 
+mol.max_memory =  10000
+mol.charge = 0
+mol.build()
+
+print("What type?")
+print(type(mol))
+
+HF.kernel(mol)
+print("done")
+
+# Run RHF computation
+mf = pyscf.scf.RHF(mol) #.x2c()
+#mf.xc = "bp86"
+mf.conv_tol = 1e-12
+#mf.chkfile = "mf4.chk"
+ehf = mf.scf()
+mf.analyze()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='asccbc-nc206140.asc.ohio-state.edu', release='4.18.0-553.56.1.el8_10.x86_64', version='#1 SMP Mon Jun 2 12:33:13 EDT 2025', machine='x86_64')  Threads 24
+Python 3.9.19 (main, May  6 2024, 19:43:03) 
+[GCC 11.2.0]
+numpy 1.26.4  scipy 1.12.0  h5py 3.11.0
+Date: Tue Jun 24 14:13:50 2025
+PySCF version 2.6.2
+PySCF path  /home/chiang.272/.conda/envs/pyscf_bse/lib/python3.9/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 4
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 H      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 H      1.100000000000   0.000000000000   0.000000000000 AA    2.078698737022   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  3 He     2.200000000000   0.000000000000   0.000000000000 AA    4.157397474043   0.000000000000   0.000000000000 Bohr   0.0
+
+nuclear repulsion = 1.92428076698182
+number of shells = 3
+number of NR pGTOs = 9
+number of NR cGTOs = 3
+basis = STO-3g
+ecp = {}
+CPU time:         0.94
+What type?
+<class 'pyscf.gto.mole.Mole'>
+runing HFSCF...
+Basis set: STO-3g
+number of atoms: 3
+number of electrons: 4
+computing nuclear repulsion energy...
+Enn= 1.924280766981818
+Construct the S^(-1/2) matrix.
+Construct initial density matrix.
+SCF interation...
+count ||||  delta_energy  ||  delta_D
+0|||100||1.5045526267535054
+1|||-105.43776240799905||0.7974766494902354
+2|||-0.27400211054476564||0.007436142169153351
+3|||-5.321849245643051e-05||0.001061823476905558
+4|||-9.645256495716126e-07||0.00020493088367192982
+5|||-3.452793162495027e-08||3.8846098005480644e-05
+6|||-1.2383276626337647e-09||7.356007739863901e-06
+7|||-4.440359191448806e-11||1.3929004034332583e-06
+8|||-1.5907275496829243e-12||2.637537436090023e-07
+9|||-5.773159728050814e-14||4.994333635534267e-08
+SCF converage
+Total Energy =  -3.787537970392414
+done
+
+
+******** <class 'pyscf.scf.hf.RHF'> ********
+method = RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-12
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /scratch/local/tmpp0ptj88j
+max_memory 10000 MB (current use 152 MB)
+Set gradient conv threshold to 1e-06
+Initial guess from minao.
+init E= -3.61234463193373
+  HOMO = -0.294440773251128  LUMO = 0.40146102853197
+cycle= 1 E= -3.78129163562873  delta_E= -0.169  |g|= 0.109  |ddm|= 1.13
+  HOMO = -0.392215471863479  LUMO = 0.492564389582395
+cycle= 2 E= -3.78745286972568  delta_E= -0.00616  |g|= 0.0142  |ddm|= 0.224
+  HOMO = -0.399862495342706  LUMO = 0.493146799137531
+cycle= 3 E= -3.78753687023564  delta_E= -8.4e-05  |g|= 0.00162  |ddm|= 0.0223
+  HOMO = -0.400131602427308  LUMO = 0.492614164829929
+cycle= 4 E= -3.78753797039064  delta_E= -1.1e-06  |g|= 1.82e-06  |ddm|= 0.00276
+  HOMO = -0.40013320141009  LUMO = 0.492615486385541
+cycle= 5 E= -3.78753797039241  delta_E= -1.77e-12  |g|= 3.76e-08  |ddm|= 4.04e-06
+  HOMO = -0.400133203123799  LUMO = 0.492615489184419
+cycle= 6 E= -3.78753797039241  delta_E= -8.88e-16  |g|= 1.95e-08  |ddm|= 4.06e-08
+  HOMO = -0.400133203882873  LUMO = 0.492615492470156
+Extra cycle  E= -3.78753797039241  delta_E= 8.88e-16  |g|= 2.77e-09  |ddm|= 3.99e-08
+converged SCF energy = -3.78753797039241
+**** SCF Summaries ****
+Total Energy =                          -3.787537970392413
+Nuclear Repulsion Energy =               1.924280766981818
+One-electron Energy =                   -8.665629245521616
+Two-electron Energy =                    2.953810508147385
+**** MO energy ****
+MO #1   energy= -0.978870914670037 occ= 2
+MO #2   energy= -0.400133203882873 occ= 2
+MO #3   energy= 0.492615492470156  occ= 0
+ ** Mulliken pop on meta-lowdin orthogonal AOs  **
+ ** Mulliken pop  **
+pop of  0 H 1s            1.12445
+pop of  1 H 1s            0.94794
+pop of  2 He 1s           1.92761
+ ** Mulliken atomic charges  **
+charge of    0H =     -0.12445
+charge of    1H =      0.05206
+charge of    2He =      0.07239
+Dipole moment(X, Y, Z, Debye):  0.96558,  0.00000,  0.00000
