@@ -35,13 +35,17 @@ np.set_printoptions(linewidth=150, edgeitems=10, suppress=True)
 
 mol = pyscf.gto.Mole()
 mol.verbose = 4
+
+#mol.atom =[ 
+#[ 'B',  (0, 0, 0)]
+#]
+
 mol.atom =[ 
 [ 'H',  (0, 0, 0)],
-[ 'H',  ( 1.1, 0, 0)],
-[ 'He',  ( 2.2, 0, 0)]  #0.774292095
+[ 'H',  (0, 0, 1.1)] #0.774292095
 ]
 #mol.basis = bse.get_basis('ano-rcc',uncontract_general=True, uncontract_segmented=True, uncontract_spdf=True,elements=['Hg','H'],fmt='nwchem',header=False)
-mol.basis = 'STO-3g'  #'6-31g**' #'def2tzvp' #'cc-pvdz' #'STO-3G' # 'def2tzvp'
+mol.basis = 'def2-tzvp'  #'6-31g**' #'def2tzvp' #'cc-pvdz' #'STO-3G' # 'def2tzvp'
 
 
 mol.symmetry = False
@@ -51,11 +55,7 @@ mol.max_memory =  10000
 mol.charge = 0
 mol.build()
 
-print("What type?")
-print(type(mol))
 
-HF.kernel(mol)
-print("done")
 
 # Run RHF computation
 mf = pyscf.scf.RHF(mol) #.x2c()
@@ -64,3 +64,5 @@ mf.conv_tol = 1e-12
 #mf.chkfile = "mf4.chk"
 ehf = mf.scf()
 mf.analyze()
+
+HF.FullCI(mf)

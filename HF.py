@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import HFSCF.integrals as integrals
 
 #class HFSCF:
 #    def __init__(self, mf, mc = None, opt_einsum = False, aux_basis = None):
@@ -141,7 +141,70 @@ def kernel(mol):
     print("Total Energy = ",E_total)
 
 
+def FullCI(mf):
+    mo = mf.mo_coeff
+    nao = mf.mol.nao_nr()
+    nelec = mf.mol.nelectron
 
+    S_ao = mf.mol.intor('cint1e_ovlp_sph')
+    T_ao = mf.mol.intor('cint1e_kin_sph')
+    V_ao = mf.mol.intor('cint1e_nuc_sph')
+    H1_ao = T_ao + V_ao
+
+    # below is Chemists notation
+    v2e_ao = mf.mol.intor('cint2e_sph').reshape((nao,)*4)
+
+    #transfer to spin-orbit basis
+    interface=0
+    H1_so  = integrals.transform_1e_integrals_so_2(mo, H1_ao)
+    #H1_so_2  = integrals.transform_1e_integrals_so(interface,mo, H1_ao)
+    #print(H1_so)
+    #print(H1_so_2)
+    #exit()
+    print("nelec=",nelec)
+    #nelec=5
+    nocc = np.ceil(nelec/2)
+    nocc = int(nocc)
+    print("nocc=",nocc) 
+    #print("Mo=")
+    #print(mo)
+    #mo_c = mo[:, :nocc].copy()
+    #mo_e = mo[:, nocc:].copy()
+    #print("mo_c=")
+    #(mo_c)
+    #print("mo_e=")
+    #print(mo_e)
+    #mo=np.diag([1,1])
+    #print(mo)
+    
+    print("transfer 2-e integral in so basis...")
+    v2e_so = integrals.transform_2e_integrals_so_2(mo,v2e_ao)
+    print("successfully transfer")
+    #print("finish")
+    #print(v2e_so.shape)
+    #print(v2e_ao[0,1,:,:])
+    #print(v2e_so[0,1,:,:])
+    #print(H1_so[0:nelec,0:nelec])
+    E1 = np.trace(H1_so[0:nelec,0:nelec])
+    print(E1)
+
+    E2 = 0
+    #for m in range(nelec):
+    #     for n in range(nelec):
+    #         E2 = E2 + v2e_so[m,m,n,n] - v2e_so[m,n,m,n]
+    #         #print(E2)
+    
+    vee = np.einsum('m m n n -> ', v2e_so[:nelec, :nelec, :nelec, :nelec])
+    vex = np.einsum('m n m n -> ', v2e_so[:nelec, :nelec, :nelec, :nelec])
+
+    E2 = vee - vex
+
+    E2 = E2 /2 
+    print(E2)
+    
+
+    
+    
 
 
 

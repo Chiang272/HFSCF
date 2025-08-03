@@ -70,7 +70,7 @@ System: uname_result(system='Linux', node='asccbc-nc206140.asc.ohio-state.edu', 
 Python 3.9.19 (main, May  6 2024, 19:43:03) 
 [GCC 11.2.0]
 numpy 1.26.4  scipy 1.12.0  h5py 3.11.0
-Date: Fri Aug  1 15:03:51 2025
+Date: Fri Aug  1 15:02:03 2025
 PySCF version 2.6.2
 PySCF path  /home/chiang.272/.conda/envs/pyscf_bse/lib/python3.9/site-packages/pyscf
 
@@ -92,7 +92,7 @@ number of NR pGTOs = 6
 number of NR cGTOs = 2
 basis = STO-3G
 ecp = {}
-CPU time:         0.83
+CPU time:         0.97
 
 
 ******** <class 'pyscf.scf.hf.RHF'> ********
@@ -109,7 +109,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /scratch/local/tmpkyo9fah3
+chkfile to save SCF result = /scratch/local/tmp7sw_hvv6
 max_memory 10000 MB (current use 149 MB)
 Set gradient conv threshold to 1e-06
 Initial guess from minao.
@@ -148,5 +148,3 @@ mo_c=
 mo_e=
 [[-0.94456244]
  [ 0.94456244]]
-finish
-(4, 4, 4, 4)
