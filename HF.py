@@ -1,10 +1,19 @@
 import numpy as np
 import pandas as pd
 import HFSCF.integrals as integrals
+import math
 
 #class HFSCF:
 #    def __init__(self, mf, mc = None, opt_einsum = False, aux_basis = None):
 
+
+
+def find_occ(config,nso):
+    list=[]
+    for i in range(nso):
+        if config & (1<<i):
+            list.append(i)
+    return list
 
 def kernel(mol):
     print("runing HFSCF...")
@@ -142,6 +151,8 @@ def kernel(mol):
 
 
 def FullCI(mf):
+    Enn = mf.mol.energy_nuc()
+    print("Enn=", Enn)
     mo = mf.mo_coeff
     nao = mf.mol.nao_nr()
     nelec = mf.mol.nelectron
@@ -161,11 +172,11 @@ def FullCI(mf):
     #print(H1_so)
     #print(H1_so_2)
     #exit()
-    print("nelec=",nelec)
+    
     #nelec=5
-    nocc = np.ceil(nelec/2)
-    nocc = int(nocc)
-    print("nocc=",nocc) 
+    #nocc = np.ceil(nelec/2)
+    #nocc = int(nocc)
+    #print("nocc=",nocc) 
     #print("Mo=")
     #print(mo)
     #mo_c = mo[:, :nocc].copy()
@@ -180,30 +191,126 @@ def FullCI(mf):
     print("transfer 2-e integral in so basis...")
     v2e_so = integrals.transform_2e_integrals_so_2(mo,v2e_ao)
     print("successfully transfer")
-    #print("finish")
-    #print(v2e_so.shape)
-    #print(v2e_ao[0,1,:,:])
-    #print(v2e_so[0,1,:,:])
-    #print(H1_so[0:nelec,0:nelec])
-    E1 = np.trace(H1_so[0:nelec,0:nelec])
-    print(E1)
 
-    E2 = 0
-    #for m in range(nelec):
-    #     for n in range(nelec):
-    #         E2 = E2 + v2e_so[m,m,n,n] - v2e_so[m,n,m,n]
-    #         #print(E2)
+    #calculate number of configuration
+    nso=len(H1_so)
+    print("nelec=",nelec)
+    print("nso=",nso)
+    ncon = math.factorial(nso) // (math.factorial(nelec)*math.factorial(nso-nelec))
+    print("ncon=" ,ncon)
+
+    #build configuration
+    config=[]
+    for i in range(int(2**(nso))):
+        if bin(i).count('1') == nelec:
+            config.append(i)
+    #print(config)
+
+    #build Full CI matrix###############
+    H_FCI = np.zeros([ncon,ncon])
     
-    vee = np.einsum('m m n n -> ', v2e_so[:nelec, :nelec, :nelec, :nelec])
-    vex = np.einsum('m n m n -> ', v2e_so[:nelec, :nelec, :nelec, :nelec])
+    #diagonal part##############################
 
-    E2 = vee - vex
+    for i in range(ncon): #ncon):
+        mo_occ_list = []
+        E1=0
+        E2=0
+        for j in range(nso):
+            if config[i]&(1<<j):
+                mo_occ_list.append(j)
+                E1+= H1_so[j,j]
+        
+        for k in range(nelec):
+            for l in range(nelec):
+                m=mo_occ_list[k]
+                n=mo_occ_list[l]
 
-    E2 = E2 /2 
-    print(E2)
+                E2+= v2e_so[m,m,n,n]
+                E2-= v2e_so[m,n,m,n]
+        E2 = E2 /2 
+
+        H_FCI[i,i] += E1 + E2
+        #print(bin(config[i]))
+        #print(H_FCI[i,i])
+    print("H1_so=")
+    print(H1_so)
+    ####offdiagnoal term#############
+    H_FCI_off = np.zeros([ncon,ncon])
+    #print(H1_so)
+    for I in range(ncon):
+        #print(bin(config[I]))
+        for J in range(ncon):
+            if (I>J):
+                
+                J_occ = find_occ(config[J],nso)
+
+                result= config[I] ^ config[J]
+                #print(bin(result))
+                ### different by one spin-orbital
+                if bin(result).count('1') == 2:
+                    #print("found")
+                    #print(bin(result))
+                    diff_occ = find_occ(result,nso)
+                    #(bin(config[I]))
+                    #print(bin(config[J]))
+                    #(diff_occ)
+                    h1_off = H1_so[diff_occ[0],diff_occ[1]]
+                    print("h1_0ff=", h1_off)
+                    
+                    h2_off = 0
+                    for i in range(nelec):
+                        m = J_occ[i]
+                        h2_off += v2e_so[diff_occ[0],diff_occ[1],m,m]
+                        h2_off -= v2e_so[diff_occ[0],m,diff_occ[1],m]
+                    #("h1_off=",h1_off)
+                    #print("h2_off=",h2_off)
+                    H_FCI_off[I,J] = h1_off + h2_off
+                    #print(H_FCI_off[I,J])
+                ### different by 2 spin-orbital
+                elif bin(result).count('1') == 4:
+                    diff_occ = find_occ(result,nso)
+                    #print(diff_occ)
+                    H_FCI_off[I,J] = v2e_so[diff_occ[0],diff_occ[2],diff_occ[1],diff_occ[3]] - v2e_so[diff_occ[0],diff_occ[1],diff_occ[2],diff_occ[3]]
+
+
+    #print(H_FCI_off)
+    
+    H_FCI = H_FCI + H_FCI_off + H_FCI_off.T
+    #print(H_FCI)
+    print("ncon=",ncon)
+    print("nso=",nso)
+    print("nelec=",nelec)
+    print("HF_energy=",H_FCI[0,0]+Enn)
+    #print(H_FCI-H_FCI.T)
+    # DIAGONALIZE:
+    FCI_en, FCI_evec = np.linalg.eigh(H_FCI)
+
+
+    
+    print("total FCI energy")
+    print(FCI_en[0]+Enn)
+
+    from pyscf import fci
+    H_fci = fci.direct_spin1.pspace(H1_ao, v2e_ao, nso//2, nelec, np=1225)[1]
+    print(H_fci.shape)
+    e_all, v_all = np.linalg.eigh(H_fci)
+    print("e_all=",e_all[0]+Enn)
+    #print(E1)
+    #print(E2)
+
+    #E1 = np.trace(H1_so[0:nelec,0:nelec])
+    #print(E1)
+    #E2 = 0   
+    #vee = np.einsum('m m n n -> ', v2e_so[:nelec, :nelec, :nelec, :nelec])
+    #vex = np.einsum('m n m n -> ', v2e_so[:nelec, :nelec, :nelec, :nelec])
+
+    #E2 = vee - vex
+
+    #E2 = E2 /2 
+    #print(E2)
+    
     
 
-    
     
 
 

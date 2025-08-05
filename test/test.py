@@ -36,16 +36,21 @@ np.set_printoptions(linewidth=150, edgeitems=10, suppress=True)
 mol = pyscf.gto.Mole()
 mol.verbose = 4
 
-#mol.atom =[ 
-#[ 'B',  (0, 0, 0)]
-#]
+#r= 0.96
+#x = r * math.sin(104.5 * math.pi/(2 * 180.0))
+#y = r * math.cos(104.5 * math.pi/(2 * 180.0))
+#mol.atom = [
+#['O', ( 0., 0.    , 0.0)],
+#['H', ( 0., -x, y)],
+#['H', ( 0., x , y)],]
 
-mol.atom =[ 
-[ 'H',  (0, 0, 0)],
-[ 'H',  (0, 0, 1.1)] #0.774292095
-]
+
+#mol.atom =[[ 'Li',  (0, 0, 0)]]
+
+mol.atom =[ [ 'H',  (0, 0, 0)],[ 'H',  (0, 0, 1.1)] ]
+
 #mol.basis = bse.get_basis('ano-rcc',uncontract_general=True, uncontract_segmented=True, uncontract_spdf=True,elements=['Hg','H'],fmt='nwchem',header=False)
-mol.basis = 'def2-tzvp'  #'6-31g**' #'def2tzvp' #'cc-pvdz' #'STO-3G' # 'def2tzvp'
+mol.basis = 'sto-3g'  #'6-31g**' #'def2tzvp' #'cc-pvdz' #'STO-3G' # 'def2tzvp'
 
 
 mol.symmetry = False
@@ -66,3 +71,14 @@ ehf = mf.scf()
 mf.analyze()
 
 HF.FullCI(mf)
+
+
+cisolver = pyscf.fci.FCI(mf)
+#cisolver.analyze()
+#print('E(FCI) = %.12f' % cisolver.kernel()[0])
+
+print(cisolver.kernel()[0])
+
+#mc = pyscf.mcscf.CASSCF(mf, 4, 2)
+#emc = mc.mc1step()[0]
+#mc.analyze()
