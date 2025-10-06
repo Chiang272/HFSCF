@@ -45,18 +45,18 @@ mol.verbose = 4
 #['H', ( 0., x , y)],]
 
 
-#mol.atom =[[ 'Li',  (0, 0, 0)]]
+mol.atom =[[ 'Li',  (0, 0, 0)]]
 
-mol.atom =[ [ 'He',  (0, 0, 0)],
-            [ 'He',  (0, 0, 1.1)]]
+#mol.atom =[ [ 'H',  (0, 0, 0)],
+#            [ 'H',  (0, 0, 1.1)]]
 
 #mol.basis = bse.get_basis('ano-rcc',uncontract_general=True, uncontract_segmented=True, uncontract_spdf=True,elements=['Hg','H'],fmt='nwchem',header=False)
-mol.basis = "3-21g"
+mol.basis = "sto-3g"
 #mol.basis = "sto-3g"
 
 
 mol.symmetry = False
-mol.spin = 0
+mol.spin = 1
 #mol.unit = 'B' 
 mol.max_memory =  10000
 mol.charge = 0
@@ -79,25 +79,23 @@ cisolver = pyscf.fci.FCI(mf)
 #cisolver.analyze()
 print('E(FCI) = %.12f' % cisolver.kernel()[0])
 
-
+exit()
 #print("PYSCF FCI")
 #print(cisolver.kernel()[1])
 
-mc = pyscf.mcscf.CASCI(mf, 4, 4)
-mc.fcisolver.nroots = 36 
+mc = pyscf.mcscf.CASCI(mf, 4, 2)
+mc.fcisolver.nroots = 16 
 #emc = mc.mc1step()[0]
 mc.kernel()
-#print( mc.ci[0])
-
-evec = np.zeros([36,36])
+evec = np.zeros([16,16])
 #print(mc.e_cas)
 
 E = np.diag(mc.e_cas)
 #print(E)
 #print(mc.ci[0].reshape([1,4]))
 
-for i in range(36):
-    evec[:,i] = mc.ci[i].reshape([1,36])
+for i in range(16):
+    evec[:,i] = mc.ci[i].reshape([1,16])
 
 #print(evec)
 
@@ -113,35 +111,20 @@ print("WSWWWW")
 print(H_FCI - H_cas)
 H_dif = H_FCI - H_cas
 
-print("RRRRRRRRRRRRRRRRRRRRRR")
-print(np.diag(H_FCI))
-print(np.diag(H_cas))
-print("FFFFFFFFFFFFFFFFFFF")
-print(np.diag(H_FCI) - np.diag(H_cas))
-print("EEEEEEEEEEEEEEEEEEEEEEE")
-AA = np.diag(H_cas) #.sort()
-AA = sorted(AA)
-
-BB = np.diag(H_FCI) #.sort()
-BB = sorted(BB)
-AA = np.array(AA)
-BB = np.array(BB)
-print(AA-BB)
-
-with open('He2_FCI_3-21g.csv', 'w', newline='') as csvfile:
+with open('H_FCI_3-21g.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerows(H_FCI.tolist())
 
 csvfile.close()
 
 
-with open('He2_cas_3-21g.csv', 'w', newline='') as csvfile:
+with open('H_cas_3-21g.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerows(H_cas.tolist())
 
 csvfile.close()
 
-with open('He2_dif_3-21g.csv', 'w', newline='') as csvfile:
+with open('H_dif_3-21g.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerows(H_dif.tolist())
 
